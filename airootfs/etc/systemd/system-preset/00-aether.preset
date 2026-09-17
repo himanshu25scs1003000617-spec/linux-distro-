@@ -1,0 +1,6 @@
+enable sddm.service
+enable NetworkManager.service
+enable bluetooth.service
+enable live-setup.service
+enable systemd-timesyncd.service
+enable reflector.service

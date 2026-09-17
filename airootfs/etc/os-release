@@ -1,0 +1,11 @@
+NAME="AetherOS"
+PRETTY_NAME="AetherOS Linux"
+ID=aetheros
+ID_LIKE=arch
+BUILD_ID=rolling
+ANSI_COLOR="38;2;23;147;209"
+HOME_URL="https://github.com/aetheros"
+DOCUMENTATION_URL="https://wiki.archlinux.org"
+SUPPORT_URL="https://github.com/aetheros/issues"
+BUG_REPORT_URL="https://github.com/aetheros/issues"
+LOGO=archlinux-logo
