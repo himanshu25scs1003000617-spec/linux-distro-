@@ -9,8 +9,12 @@ iso_application="AetherOS Live / Install Media"
 iso_version="$(date +%Y.%m.%d)"
 install_dir="arch"
 buildmodes=('iso')
-bootmodes=('bios.syslinux' 'uefi.systemd-boot')
-arch="x86_64"
+arch="$(uname -m)"
+if [ "$arch" = "x86_64" ]; then
+    bootmodes=('bios.syslinux' 'uefi.systemd-boot')
+else
+    bootmodes=('uefi.systemd-boot')
+fi
 pacman_conf="pacman.conf"
 airootfs_image_type="squashfs"
 airootfs_image_tool_options=('-comp' 'zstd' '-Xcompression-level' '15' '-b' '1M')
