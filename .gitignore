@@ -1,0 +1,8 @@
+build-work/
+build-out/
+work/
+out/
+*.iso
+*.iso.*
+*.log
+*.zip

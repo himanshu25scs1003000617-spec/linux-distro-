@@ -28,12 +28,12 @@ jobs:
 
       - name: Build ISO via mkarchiso
         run: |
-          mkdir -p /tmp/work /tmp/out
-          mkarchiso -v -w /tmp/work -o /tmp/out .
+          mkdir -p /build-work "$GITHUB_WORKSPACE/out"
+          mkarchiso -v -w /build-work -o "$GITHUB_WORKSPACE/out" .
 
       - name: Generate Checksums
         run: |
-          cd /tmp/out
+          cd "$GITHUB_WORKSPACE/out"
           sha256sum *.iso > sha256sum.txt
           cat sha256sum.txt
 
@@ -42,8 +42,8 @@ jobs:
         with:
           name: aetheros-live-iso
           path: |
-            /tmp/out/*.iso
-            /tmp/out/sha256sum.txt
+            out/*.iso
+            out/sha256sum.txt
           retention-days: 7
 
       - name: Create GitHub Release (On Tag)
@@ -51,7 +51,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            /tmp/out/*.iso
-            /tmp/out/sha256sum.txt
+            out/*.iso
+            out/sha256sum.txt
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
