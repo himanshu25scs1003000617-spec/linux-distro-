@@ -16,6 +16,7 @@ jobs:
     steps:
       - name: Install Git & Core Build Tools
         run: |
+          pacman -Sy --noconfirm archlinux-keyring
           pacman -Syu --noconfirm git archiso
 
       - name: Checkout Repository

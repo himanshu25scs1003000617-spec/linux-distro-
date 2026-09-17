@@ -10,6 +10,9 @@ systemd-sysvcompat
 # --- Bootloader & Storage Utilities ---
 grub
 efibootmgr
+syslinux
+memtest86+
+edk2-shell
 os-prober
 gptfdisk
 parted
