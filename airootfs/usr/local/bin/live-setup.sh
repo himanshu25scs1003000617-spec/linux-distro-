@@ -21,6 +21,12 @@ if [ -f /etc/skel/Desktop/calamares.desktop ]; then
     chmod +x /home/liveuser/Desktop/calamares.desktop
 fi
 
+# Apply custom Calamares configuration and branding
+if [ -d /etc/calamares-custom ]; then
+    mkdir -p /etc/calamares
+    cp -rf /etc/calamares-custom/* /etc/calamares/
+fi
+
 chown -R liveuser:users /home/liveuser
 
 # Generate locales
