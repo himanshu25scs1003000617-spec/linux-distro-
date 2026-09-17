@@ -9,33 +9,47 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container:
-      image: archlinux:latest
-      options: --privileged
 
     steps:
-      - name: Install Git & Core Build Tools
+      - name: Free Disk Space on Runner
         run: |
-          pacman -Sy --noconfirm archlinux-keyring
-          pacman -Syu --noconfirm git archiso
+          echo "==> Disk space before cleanup:"
+          df -h /
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache
+          sudo rm -rf /usr/lib/jvm
+          sudo docker image prune --all --force
+          echo "==> Disk space after cleanup:"
+          df -h /
 
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set Safe Directory for Git
+      - name: Build ISO in Privileged Arch Linux Container
         run: |
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-
-      - name: Build ISO via mkarchiso
-        run: |
-          mkdir -p /build-work "$GITHUB_WORKSPACE/out"
-          mkarchiso -v -w /build-work -o "$GITHUB_WORKSPACE/out" .
+          mkdir -p out
+          docker run --rm --privileged \
+            -v "$PWD:/workspace" \
+            archlinux:latest \
+            /bin/bash -c "
+              set -e
+              echo '==> Updating keyrings and installing archiso...'
+              pacman -Sy --noconfirm archlinux-keyring
+              pacman -Syu --noconfirm git archiso
+              
+              echo '==> Building AetherOS ISO with mkarchiso...'
+              mkdir -p /build-work
+              mkarchiso -v -w /build-work -o /workspace/out /workspace
+            "
 
       - name: Generate Checksums
         run: |
-          cd "$GITHUB_WORKSPACE/out"
+          cd out
           sha256sum *.iso > sha256sum.txt
           cat sha256sum.txt
+          ls -lh
 
       - name: Upload ISO Artifact
         uses: actions/upload-artifact@v4
