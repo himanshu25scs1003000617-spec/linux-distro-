@@ -95,17 +95,31 @@ sddm-kcm
 plasma-desktop
 plasma-meta
 plasma-pa
+plasma-systemmonitor
 powerdevil
 kscreen
 polkit-kde-agent
 breeze
 breeze-gtk
 breeze-icons
+papirus-icon-theme
+kvantum
 kde-gtk-config
 xdg-desktop-portal
 xdg-desktop-portal-kde
 xdg-user-dirs
 xdg-utils
+
+# --- Fonts & Typography ---
+ttf-jetbrains-mono-nerd
+noto-fonts
+noto-fonts-emoji
+ttf-liberation
+
+# --- Shell Enhancements ---
+fish
+zsh-syntax-highlighting
+zsh-autosuggestions
 
 # --- Essential KDE Apps ---
 dolphin

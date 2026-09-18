@@ -1,0 +1,24 @@
+[General]
+ColorScheme=BreezeDark
+AccentColor=0,216,180
+accentColorFromWallpaper=false
+font=Noto Sans,10,-1,5,50,0,0,0,0,0
+fixed=JetBrainsMono Nerd Font,10,-1,5,50,0,0,0,0,0
+smallestReadableFont=Noto Sans,8,-1,5,50,0,0,0,0,0
+toolBarFont=Noto Sans,10,-1,5,50,0,0,0,0,0
+menuFont=Noto Sans,10,-1,5,50,0,0,0,0,0
+
+[Icons]
+Theme=Papirus-Dark
+
+[KDE]
+ShowDeleteCommand=false
+SingleClick=true
+
+[WM]
+activeBackground=14,16,22
+activeBlend=0,216,180
+activeForeground=240,245,255
+inactiveBackground=20,24,32
+inactiveBlend=35,42,55
+inactiveForeground=140,150,175

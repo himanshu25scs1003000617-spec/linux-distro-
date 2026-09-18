@@ -1,0 +1,13 @@
+{
+  "KPlugin": {
+    "Authors": [
+      {
+        "Email": "info@aetheros.org",
+        "Name": "AetherOS Project"
+      }
+    ],
+    "Id": "AetherOS",
+    "License": "GPLv3",
+    "Name": "AetherOS"
+  }
+}

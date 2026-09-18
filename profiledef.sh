@@ -22,4 +22,5 @@ file_permissions=(
   ["/etc/sudoers.d/00-liveuser"]="0:0:440"
   ["/usr/local/bin/live-setup.sh"]="0:0:755"
   ["/usr/local/bin/calamares-launcher.sh"]="0:0:755"
+  ["/usr/local/bin/aether-firstrun.sh"]="0:0:755"
 )

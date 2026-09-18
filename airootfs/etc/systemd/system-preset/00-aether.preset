@@ -4,3 +4,4 @@ enable bluetooth.service
 enable live-setup.service
 enable systemd-timesyncd.service
 enable reflector.service
+disable systemd-firstboot.service
