@@ -6,3 +6,6 @@ out/
 *.iso.*
 *.log
 *.zip
+.token
+download-iso.sh
+fast-download.py
