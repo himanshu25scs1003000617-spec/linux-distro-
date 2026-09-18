@@ -23,4 +23,5 @@ file_permissions=(
   ["/usr/local/bin/live-setup.sh"]="0:0:755"
   ["/usr/local/bin/calamares-launcher.sh"]="0:0:755"
   ["/usr/local/bin/aether-firstrun.sh"]="0:0:755"
+  ["/usr/lib/calamares/modules/initcpio/main.py"]="0:0:755"
 )

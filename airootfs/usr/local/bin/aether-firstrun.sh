@@ -23,6 +23,11 @@ if [ -f "${WALLPAPER}" ] && command -v plasma-apply-wallpaperimage &>/dev/null; 
     plasma-apply-wallpaperimage "${WALLPAPER}" >/dev/null 2>&1 || true
 fi
 
+# Remove installer shortcut from desktop if booted into the installed system
+if [ ! -d /run/archiso ]; then
+    rm -f "$HOME/Desktop/calamares.desktop"
+fi
+
 # Remove autostart entry so it doesn't re-run
 rm -f "$HOME/.config/autostart/aether-firstrun.desktop"
 
