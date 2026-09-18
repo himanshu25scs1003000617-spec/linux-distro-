@@ -1,5 +1,6 @@
 [Unit]
 Description=AetherOS Live Environment Setup Service
+ConditionPathExists=/run/archiso/bootmnt
 Before=sddm.service systemd-user-sessions.service
 After=local-fs.target
 

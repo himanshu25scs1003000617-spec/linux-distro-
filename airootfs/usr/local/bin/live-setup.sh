@@ -27,6 +27,12 @@ if [ -d /etc/calamares-custom ]; then
     cp -rf /etc/calamares-custom/* /etc/calamares/
 fi
 
+# Enable SDDM auto-login strictly for the live session
+if [ -d /etc/sddm.conf.d-live ]; then
+    mkdir -p /etc/sddm.conf.d
+    cp -f /etc/sddm.conf.d-live/autologin.conf /etc/sddm.conf.d/autologin.conf
+fi
+
 chown -R liveuser:users /home/liveuser
 
 # Generate locales
