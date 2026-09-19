@@ -14,11 +14,11 @@ if [ -d /etc/skel ]; then
     cp -rT /etc/skel /home/liveuser
 fi
 
-# Ensure Desktop directory and installer shortcut permissions
+# Ensure Desktop directory and desktop shortcut permissions
 mkdir -p /home/liveuser/Desktop
-if [ -f /etc/skel/Desktop/calamares.desktop ]; then
-    cp /etc/skel/Desktop/calamares.desktop /home/liveuser/Desktop/
-    chmod +x /home/liveuser/Desktop/calamares.desktop
+if [ -d /etc/skel/Desktop ]; then
+    cp -rf /etc/skel/Desktop/* /home/liveuser/Desktop/
+    chmod +x /home/liveuser/Desktop/*.desktop 2>/dev/null || true
 fi
 
 # Apply custom Calamares configuration and branding
@@ -31,6 +31,9 @@ fi
 if [ -d /etc/sddm.conf.d-live ]; then
     mkdir -p /etc/sddm.conf.d
     cp -f /etc/sddm.conf.d-live/autologin.conf /etc/sddm.conf.d/autologin.conf
+    if grep -q "desktop=gnome" /proc/cmdline 2>/dev/null; then
+        sed -i 's/^Session=.*/Session=gnome/' /etc/sddm.conf.d/autologin.conf
+    fi
 fi
 
 chown -R liveuser:users /home/liveuser

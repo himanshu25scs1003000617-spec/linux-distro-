@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Aether Auto-Resize
+Exec=/usr/local/bin/aether-autoresize
+Hidden=false
+NoDisplay=true
+X-KDE-autostart-phase=2

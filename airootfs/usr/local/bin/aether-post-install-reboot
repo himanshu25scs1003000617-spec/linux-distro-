@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# aether-post-install-reboot - Ejects optical media / virtual ISO before rebooting
+
+for dev in /dev/sr* /dev/cdrom; do
+    if [ -b "$dev" ]; then
+        eject -s "$dev" >/dev/null 2>&1 || eject "$dev" >/dev/null 2>&1 || true
+    fi
+done
+
+exec systemctl reboot

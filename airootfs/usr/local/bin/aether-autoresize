@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# aether-autoresize - Auto-detects virtual displays and sets optimal 1080p resolution
+
+set -e
+
+# Wait for display server to settle
+sleep 2
+
+# Check if running under a VM (QEMU/UTM, VMware, VirtualBox)
+IS_VM=false
+if grep -Eqi "(qemu|kvm|vmware|virtualbox)" /sys/class/dmi/id/product_name /sys/class/dmi/id/sys_vendor 2>/dev/null; then
+    IS_VM=true
+fi
+
+# 1. KDE Plasma Wayland
+if command -v kscreen-doctor &>/dev/null && [ "$XDG_CURRENT_DESKTOP" = "KDE" ]; then
+    # Try setting 1920x1080 on first active output if currently low res (like 800x600 or 1024x768)
+    OUTPUT_ID=$(kscreen-doctor -o 2>/dev/null | grep -E "^Output: [0-9]+" | head -n 1 | awk '{print $2}' || true)
+    if [ -n "$OUTPUT_ID" ]; then
+        kscreen-doctor "output.${OUTPUT_ID}.mode.1920x1080@60" >/dev/null 2>&1 || true
+    fi
+fi
+
+# 2. X11 / XWayland fallback
+if command -v xrandr &>/dev/null && [ -n "$DISPLAY" ]; then
+    CONNECTED_OUTPUT=$(xrandr --query 2>/dev/null | grep " connected" | head -n 1 | cut -d' ' -f1 || true)
+    if [ -n "$CONNECTED_OUTPUT" ]; then
+        xrandr --output "$CONNECTED_OUTPUT" --mode 1920x1080 2>/dev/null || true
+    fi
+fi
+
+exit 0

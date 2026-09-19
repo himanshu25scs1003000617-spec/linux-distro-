@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Switch Desktop (KDE ⟷ GNOME)
+GenericName=Desktop Environment Switcher
+Comment=Instantly switch between KDE Plasma 6 and GNOME Shell
+Exec=/usr/local/bin/aether-switch-desktop
+Icon=preferences-desktop-theme
+Terminal=false
+StartupNotify=true
+Categories=System;
