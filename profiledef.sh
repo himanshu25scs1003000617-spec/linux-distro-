@@ -18,7 +18,7 @@ else
     pacman_conf="pacman.aarch64.conf"
 fi
 airootfs_image_type="squashfs"
-airootfs_image_tool_options=('-comp' 'zstd' '-Xcompression-level' '19' '-b' '1M')
+airootfs_image_tool_options=('-comp' 'xz' '-Xbcj' 'x86,arm64' '-b' '1M' '-Xdict-size' '1M')
 file_permissions=(
   ["/etc/sudoers.d/00-liveuser"]="0:0:440"
   ["/usr/local/bin/live-setup.sh"]="0:0:755"
