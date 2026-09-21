@@ -51,7 +51,7 @@ jobs:
               
               echo '==> Installing upstream archiso from git...'
               git clone --depth 1 https://gitlab.archlinux.org/archlinux/archiso.git /tmp/archiso
-              make -C /tmp/archiso install
+              make -C /tmp/archiso install-scripts install-profiles
               
               echo '==> Building AetherOS ARM64 ISO with mkarchiso...'
               mkdir -p /build-work
