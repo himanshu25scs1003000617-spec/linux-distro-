@@ -1,0 +1,10 @@
+[Trigger]
+Type = Path
+Operation = Install
+Operation = Upgrade
+Target = boot/*
+
+[Action]
+Description = Ensuring vmlinuz-linux and initramfs-linux.img exist for archiso boot...
+When = PostTransaction
+Exec = /usr/bin/sh -c 'if [ -f /boot/Image ] && [ ! -f /boot/vmlinuz-linux ]; then cp -f /boot/Image /boot/vmlinuz-linux; fi; if [ -f /boot/initramfs-linux-aarch64.img ] && [ ! -f /boot/initramfs-linux.img ]; then cp -f /boot/initramfs-linux-aarch64.img /boot/initramfs-linux.img; fi'

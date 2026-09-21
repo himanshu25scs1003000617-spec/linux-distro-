@@ -36,14 +36,15 @@ git
 nano
 vim
 htop
+btop
 fastfetch
 pciutils
 usbutils
 which
 man-db
 man-pages
-reflector
 pacman-contrib
+zram-generator
 
 # --- Audio (PipeWire Stack) ---
 pipewire
@@ -99,6 +100,13 @@ xdg-desktop-portal-kde
 xdg-user-dirs
 xdg-utils
 
+# --- GNOME Desktop Environment ---
+gnome-shell
+gnome-control-center
+gnome-terminal
+nautilus
+xdg-desktop-portal-gnome
+
 # --- Essential KDE Apps ---
 dolphin
 konsole
@@ -109,8 +117,12 @@ gwenview
 kcalc
 firefox
 
-# --- Installer & Dependencies (Calamares) ---
-calamares
-hwinfo
-kpmcore
-yaml-cpp
+# --- Fonts & Icons ---
+noto-fonts
+noto-fonts-cjk
+noto-fonts-emoji
+ttf-font-awesome
+papirus-icon-theme
+
+# --- Installer ---
+archinstall

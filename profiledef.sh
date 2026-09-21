@@ -12,10 +12,11 @@ buildmodes=('iso')
 arch="$(uname -m)"
 if [ "$arch" = "x86_64" ]; then
     bootmodes=('bios.syslinux' 'uefi.systemd-boot')
+    pacman_conf="pacman.conf"
 else
     bootmodes=('uefi.systemd-boot')
+    pacman_conf="pacman.aarch64.conf"
 fi
-pacman_conf="pacman.conf"
 airootfs_image_type="squashfs"
 airootfs_image_tool_options=('-comp' 'zstd' '-Xcompression-level' '19' '-b' '1M')
 file_permissions=(

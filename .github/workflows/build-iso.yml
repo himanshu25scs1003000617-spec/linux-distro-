@@ -7,7 +7,84 @@ on:
     tags: [ 'v*' ]
 
 jobs:
-  build:
+  build-arm64:
+    name: Build AetherOS ARM64 ISO (VMware Fusion / Apple Silicon)
+    runs-on: ubuntu-24.04-arm
+
+    steps:
+      - name: Free Disk Space on Runner
+        run: |
+          echo "==> Disk space before cleanup:"
+          df -h /
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache
+          sudo rm -rf /usr/lib/jvm
+          sudo docker image prune --all --force
+          echo "==> Disk space after cleanup:"
+          df -h /
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Build ARM64 ISO in Privileged Arch Linux ARM Container
+        run: |
+          mkdir -p out
+          docker run --rm --privileged \
+            -v "$PWD:/workspace" \
+            agners/archlinuxarm:latest \
+            /bin/bash -c "
+              set -ex
+              echo '==> Host Architecture:' \$(uname -m)
+              
+              echo '==> Initializing Arch Linux ARM pacman keyring...'
+              pacman-key --init
+              pacman-key --populate archlinuxarm
+              
+              echo '==> Configuring Arch Linux ARM mirrors...'
+              cat << 'EOF' > /etc/pacman.d/mirrorlist
+Server = http://nj.us.mirror.archlinuxarm.org/\$arch/\$repo
+Server = http://mirror.archlinuxarm.org/\$arch/\$repo
+EOF
+              
+              echo '==> Updating package database and installing archiso...'
+              pacman -Sy --noconfirm archlinuxarm-keyring
+              pacman -Syu --noconfirm git archiso
+              
+              echo '==> Building AetherOS ARM64 ISO with mkarchiso...'
+              mkdir -p /build-work
+              mkarchiso -v -w /build-work -o /workspace/out /workspace
+            "
+
+      - name: Generate Checksums
+        run: |
+          cd out
+          sha256sum *.iso > sha256sum.txt
+          cat sha256sum.txt
+          ls -lh
+
+      - name: Upload ARM64 ISO Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: aetheros-arm64-live-iso
+          path: |
+            out/*.iso
+            out/sha256sum.txt
+          retention-days: 7
+
+      - name: Create GitHub Release (On Tag)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            out/*.iso
+            out/sha256sum.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-x86_64:
+    name: Build AetherOS x86_64 ISO (PC / Intel / AMD)
     runs-on: ubuntu-latest
 
     steps:
@@ -27,7 +104,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Build ISO in Privileged Arch Linux Container
+      - name: Build x86_64 ISO in Privileged Arch Linux Container
         run: |
           mkdir -p out
           docker run --rm --privileged \
@@ -51,7 +128,7 @@ jobs:
           cat sha256sum.txt
           ls -lh
 
-      - name: Upload ISO Artifact
+      - name: Upload x86_64 ISO Artifact
         uses: actions/upload-artifact@v4
         with:
           name: aetheros-live-iso
