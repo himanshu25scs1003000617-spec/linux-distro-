@@ -13,12 +13,13 @@ arch="$(uname -m)"
 if [ "$arch" = "x86_64" ]; then
     bootmodes=('bios.syslinux' 'uefi.systemd-boot')
     pacman_conf="pacman.conf"
+    airootfs_image_tool_options=('-comp' 'xz' '-Xbcj' 'x86' '-b' '1M' '-Xdict-size' '1M')
 else
     bootmodes=('uefi.systemd-boot')
     pacman_conf="pacman.aarch64.conf"
+    airootfs_image_tool_options=('-comp' 'xz' '-b' '1M' '-Xdict-size' '1M')
 fi
 airootfs_image_type="squashfs"
-airootfs_image_tool_options=('-comp' 'xz' '-Xbcj' 'x86,arm64' '-b' '1M' '-Xdict-size' '1M')
 file_permissions=(
   ["/etc/sudoers.d/00-liveuser"]="0:0:440"
   ["/usr/local/bin/live-setup.sh"]="0:0:755"
