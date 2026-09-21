@@ -45,9 +45,13 @@ jobs:
               echo '==> Configuring Arch Linux ARM mirrors...'
               printf 'Server = http://nj.us.mirror.archlinuxarm.org/\$arch/\$repo\nServer = http://mirror.archlinuxarm.org/\$arch/\$repo\n' > /etc/pacman.d/mirrorlist
               
-              echo '==> Updating package database and installing archiso...'
+              echo '==> Installing build tools and archiso dependencies...'
               pacman -Sy --noconfirm archlinuxarm-keyring
-              pacman -Syu --noconfirm git archiso
+              pacman -Syu --noconfirm base-devel git arch-install-scripts dosfstools e2fsprogs libisoburn mtools squashfs-tools gawk
+              
+              echo '==> Installing upstream archiso from git...'
+              git clone --depth 1 https://gitlab.archlinux.org/archlinux/archiso.git /tmp/archiso
+              make -C /tmp/archiso install
               
               echo '==> Building AetherOS ARM64 ISO with mkarchiso...'
               mkdir -p /build-work
