@@ -1,8 +1,14 @@
 [Plugins]
-blurEnabled=true
-contrastEnabled=true
-slideEnabled=true
-scaleEnabled=true
+blurEnabled=false
+contrastEnabled=false
+slideEnabled=false
+scaleEnabled=false
+
+[Compositing]
+AnimationSpeed=0
+LatencyPolicy=Low
+WindowsBlockCompositing=false
+GLCore=false
 
 [Windows]
 BorderlessMaximizedWindows=false

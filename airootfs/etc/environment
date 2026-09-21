@@ -1,0 +1,5 @@
+# Virtual Machine compositing and rendering optimizations
+MESA_GL_VERSION_OVERRIDE=3.3
+LIBGL_DRI3_DISABLE=0
+KWIN_TRIPLE_BUFFER=0
+QT_QUICK_CONTROLS_STYLE=org.kde.desktop

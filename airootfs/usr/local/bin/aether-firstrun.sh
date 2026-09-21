@@ -23,6 +23,21 @@ if [ -f "${WALLPAPER}" ] && command -v plasma-apply-wallpaperimage &>/dev/null; 
     plasma-apply-wallpaperimage "${WALLPAPER}" >/dev/null 2>&1 || true
 fi
 
+# Detect Virtual Machine and enforce ultra-lightweight rendering
+if grep -Eqi "(qemu|kvm|vmware|virtualbox)" /sys/class/dmi/id/product_name /sys/class/dmi/id/sys_vendor 2>/dev/null || systemd-detect-virt &>/dev/null; then
+    if command -v kwriteconfig6 &>/dev/null; then
+        kwriteconfig6 --file kwinrc --group Plugins --key blurEnabled false
+        kwriteconfig6 --file kwinrc --group Plugins --key contrastEnabled false
+        kwriteconfig6 --file kwinrc --group Plugins --key slideEnabled false
+        kwriteconfig6 --file kwinrc --group Plugins --key scaleEnabled false
+        kwriteconfig6 --file kwinrc --group Compositing --key AnimationSpeed 0
+        kwriteconfig6 --file kdeglobals --group KDE --key AnimationDurationFactor 0
+    fi
+    if command -v balooctl6 &>/dev/null; then
+        balooctl6 disable >/dev/null 2>&1 || true
+    fi
+fi
+
 # Remove installer shortcut from desktop if booted into the installed system
 if [ ! -d /run/archiso ]; then
     rm -f "$HOME/Desktop/calamares.desktop"

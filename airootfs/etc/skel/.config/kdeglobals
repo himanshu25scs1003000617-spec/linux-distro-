@@ -14,6 +14,7 @@ Theme=Papirus-Dark
 [KDE]
 ShowDeleteCommand=false
 SingleClick=true
+AnimationDurationFactor=0
 
 [WM]
 activeBackground=14,16,22
