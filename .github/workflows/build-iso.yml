@@ -43,10 +43,7 @@ jobs:
               pacman-key --populate archlinuxarm
               
               echo '==> Configuring Arch Linux ARM mirrors...'
-              cat << 'EOF' > /etc/pacman.d/mirrorlist
-Server = http://nj.us.mirror.archlinuxarm.org/\$arch/\$repo
-Server = http://mirror.archlinuxarm.org/\$arch/\$repo
-EOF
+              printf 'Server = http://nj.us.mirror.archlinuxarm.org/\$arch/\$repo\nServer = http://mirror.archlinuxarm.org/\$arch/\$repo\n' > /etc/pacman.d/mirrorlist
               
               echo '==> Updating package database and installing archiso...'
               pacman -Sy --noconfirm archlinuxarm-keyring
