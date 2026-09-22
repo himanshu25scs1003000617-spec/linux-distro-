@@ -74,8 +74,9 @@ jobs:
           done
 
           echo "==> Generating SHA256 checksums..."
-          sha256sum *.iso > sha256sum.txt
-          sha256sum *.iso.part* >> sha256sum.txt
+          sha256sum *.iso > sha256sum-arm64.txt
+          sha256sum *.iso.part* >> sha256sum-arm64.txt
+          cp -f sha256sum-arm64.txt sha256sum.txt
 
           echo "==> Copying combine scripts..."
           cp ../scripts/combine.sh .
@@ -148,8 +149,9 @@ jobs:
           done
 
           echo "==> Generating SHA256 checksums..."
-          sha256sum *.iso > sha256sum.txt
-          sha256sum *.iso.part* >> sha256sum.txt
+          sha256sum *.iso > sha256sum-x86_64.txt
+          sha256sum *.iso.part* >> sha256sum-x86_64.txt
+          cp -f sha256sum-x86_64.txt sha256sum.txt
 
           echo "==> Copying combine scripts..."
           cp ../scripts/combine.sh .
@@ -207,10 +209,9 @@ jobs:
           chmod +x combine.sh combine.py
 
           echo "==> Generating consolidated sha256sum.txt..."
-          # Rebuild checksum file from all split parts and original artifact checksums
-          if [ -f ../downloaded-artifacts/sha256sum.txt ]; then
-            sort -u ../downloaded-artifacts/sha256sum.txt > sha256sum.txt
-          else
+          # Rebuild checksum file from all split parts and all artifact checksums
+          cat ../downloaded-artifacts/sha256sum*.txt 2>/dev/null | sort -u > sha256sum.txt || true
+          if [ ! -s sha256sum.txt ]; then
             sha256sum *.iso.part* > sha256sum.txt
           fi
 
