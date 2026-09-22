@@ -6,6 +6,9 @@ on:
     branches: [ main, master ]
     tags: [ 'v*' ]
 
+permissions:
+  contents: write
+
 jobs:
   build-arm64:
     name: Build AetherOS ARM64 ISO (VMware Fusion / Apple Silicon)
@@ -58,12 +61,28 @@ jobs:
               mkarchiso -v -w /build-work -o /workspace/out /workspace
             "
 
-      - name: Generate Checksums
+      - name: Split ISO and Prepare Release Assets
         run: |
           cd out
+          echo "==> Splitting ARM64 ISO into 1500M parts (< 2 GB for GitHub Releases)..."
+          for iso in *.iso; do
+            [ -f "$iso" ] || continue
+            split -b 1500M -d "$iso" "${iso}.part"
+          done
+
+          echo "==> Generating SHA256 checksums..."
           sha256sum *.iso > sha256sum.txt
-          cat sha256sum.txt
+          sha256sum *.iso.part* >> sha256sum.txt
+
+          echo "==> Copying combine scripts..."
+          cp ../scripts/combine.sh .
+          cp ../scripts/combine.bat .
+          cp ../scripts/combine.py .
+          chmod +x combine.sh combine.py
+
+          echo "==> Prepared ARM64 output files:"
           ls -lh
+          cat sha256sum.txt
 
       - name: Upload ARM64 ISO Artifact
         uses: actions/upload-artifact@v4
@@ -71,18 +90,12 @@ jobs:
           name: aetheros-arm64-live-iso
           path: |
             out/*.iso
+            out/*.iso.part*
             out/sha256sum.txt
+            out/combine.sh
+            out/combine.bat
+            out/combine.py
           retention-days: 7
-
-      - name: Create GitHub Release (On Tag)
-        if: startsWith(github.ref, 'refs/tags/v')
-        uses: softprops/action-gh-release@v2
-        with:
-          files: |
-            out/*.iso
-            out/sha256sum.txt
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build-x86_64:
     name: Build AetherOS x86_64 ISO (PC / Intel / AMD)
@@ -122,12 +135,28 @@ jobs:
               mkarchiso -v -w /build-work -o /workspace/out /workspace
             "
 
-      - name: Generate Checksums
+      - name: Split ISO and Prepare Release Assets
         run: |
           cd out
+          echo "==> Splitting x86_64 ISO into 1500M parts (< 2 GB for GitHub Releases)..."
+          for iso in *.iso; do
+            [ -f "$iso" ] || continue
+            split -b 1500M -d "$iso" "${iso}.part"
+          done
+
+          echo "==> Generating SHA256 checksums..."
           sha256sum *.iso > sha256sum.txt
-          cat sha256sum.txt
+          sha256sum *.iso.part* >> sha256sum.txt
+
+          echo "==> Copying combine scripts..."
+          cp ../scripts/combine.sh .
+          cp ../scripts/combine.bat .
+          cp ../scripts/combine.py .
+          chmod +x combine.sh combine.py
+
+          echo "==> Prepared x86_64 output files:"
           ls -lh
+          cat sha256sum.txt
 
       - name: Upload x86_64 ISO Artifact
         uses: actions/upload-artifact@v4
@@ -135,15 +164,93 @@ jobs:
           name: aetheros-live-iso
           path: |
             out/*.iso
+            out/*.iso.part*
             out/sha256sum.txt
+            out/combine.sh
+            out/combine.bat
+            out/combine.py
           retention-days: 7
 
-      - name: Create GitHub Release (On Tag)
-        if: startsWith(github.ref, 'refs/tags/v')
+  publish-release:
+    name: Publish Split ISO Release to GitHub Releases
+    needs: [build-arm64, build-x86_64]
+    if: always() && (needs.build-arm64.result == 'success' || needs.build-x86_64.result == 'success')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: downloaded-artifacts
+          pattern: "aetheros*"
+          merge-multiple: true
+
+      - name: Consolidate Split Parts and Checksums
+        run: |
+          mkdir -p release-assets
+          cd downloaded-artifacts
+
+          echo "==> Moving split parts under 2 GB to release directory..."
+          mv -f *.iso.part* ../release-assets/ 2>/dev/null || true
+
+          cd ../release-assets
+          echo "==> Copying merge tools..."
+          cp ../scripts/combine.sh .
+          cp ../scripts/combine.bat .
+          cp ../scripts/combine.py .
+          chmod +x combine.sh combine.py
+
+          echo "==> Generating consolidated sha256sum.txt..."
+          # Rebuild checksum file from all split parts and original artifact checksums
+          if [ -f ../downloaded-artifacts/sha256sum.txt ]; then
+            sort -u ../downloaded-artifacts/sha256sum.txt > sha256sum.txt
+          else
+            sha256sum *.iso.part* > sha256sum.txt
+          fi
+
+          echo "==> Release assets list:"
+          ls -lh
+          cat sha256sum.txt
+
+      - name: Create or Update GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || 'latest' }}
+          name: ${{ startsWith(github.ref, 'refs/tags/v') && format('AetherOS Release {0}', github.ref_name) || 'AetherOS Rolling Release (Latest)' }}
+          body: |
+            ## AetherOS Live ISO Release (KDE Plasma 6)
+
+            ### How to Combine the Split Parts (< 2 GB each)
+            GitHub Releases limits file sizes to 2 GB. The AetherOS ISOs are distributed in parts (`.iso.part00`, `.iso.part01`, etc.).
+            
+            Download all `.part*` files for your architecture, `sha256sum.txt`, and the merge script for your OS into the **same folder**:
+
+            #### On macOS / Linux:
+            ```bash
+            chmod +x combine.sh
+            ./combine.sh
+            ```
+
+            #### On Windows:
+            Double-click `combine.bat` or run:
+            ```cmd
+            combine.bat
+            ```
+
+            #### Using Python (Cross-Platform: Windows / macOS / Linux):
+            ```bash
+            python3 combine.py
+            ```
+
+            The script automatically verifies each part's SHA256 checksum, concatenates the parts into the full `.iso`, and verifies the complete ISO against `sha256sum.txt`.
           files: |
-            out/*.iso
-            out/sha256sum.txt
+            release-assets/*.iso.part*
+            release-assets/sha256sum.txt
+            release-assets/combine.sh
+            release-assets/combine.bat
+            release-assets/combine.py
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

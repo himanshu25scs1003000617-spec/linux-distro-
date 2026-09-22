@@ -27,13 +27,10 @@ if [ -d /etc/calamares-custom ]; then
     cp -rf /etc/calamares-custom/* /etc/calamares/
 fi
 
-# Enable SDDM auto-login strictly for the live session
+# Enable SDDM auto-login strictly for the live session (KDE Plasma 6)
 if [ -d /etc/sddm.conf.d-live ]; then
     mkdir -p /etc/sddm.conf.d
     cp -f /etc/sddm.conf.d-live/autologin.conf /etc/sddm.conf.d/autologin.conf
-    if grep -q "desktop=gnome" /proc/cmdline 2>/dev/null; then
-        sed -i 's/^Session=.*/Session=gnome/' /etc/sddm.conf.d/autologin.conf
-    fi
 fi
 
 chown -R liveuser:users /home/liveuser
@@ -44,7 +41,11 @@ locale-gen >/dev/null 2>&1 || true
 # Initialize pacman keyring in the background
 (
     pacman-key --init >/dev/null 2>&1 || true
-    pacman-key --populate archlinux >/dev/null 2>&1 || true
+    if [ "$(uname -m)" = "aarch64" ]; then
+        pacman-key --populate archlinuxarm >/dev/null 2>&1 || true
+    else
+        pacman-key --populate archlinux >/dev/null 2>&1 || true
+    fi
 ) &
 
 exit 0

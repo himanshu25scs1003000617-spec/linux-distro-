@@ -138,14 +138,6 @@ hwinfo
 kpmcore
 yaml-cpp
 
-# --- GNOME Desktop Environment (Dual Session) ---
-gnome-shell
-gnome-control-center
-gnome-tweaks
-nautilus
-mutter
-xdg-desktop-portal-gnome
-gnome-terminal
 
 # --- CachyOS-Grade Gaming & Runtime Performance ---
 steam

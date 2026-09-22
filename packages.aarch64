@@ -100,12 +100,6 @@ xdg-desktop-portal-kde
 xdg-user-dirs
 xdg-utils
 
-# --- GNOME Desktop Environment ---
-gnome-shell
-gnome-control-center
-gnome-terminal
-nautilus
-xdg-desktop-portal-gnome
 
 # --- Essential KDE Apps ---
 dolphin
