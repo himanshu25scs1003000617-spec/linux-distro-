@@ -25,6 +25,9 @@ fi
 if [ -d /etc/calamares-custom ]; then
     mkdir -p /etc/calamares
     cp -rf /etc/calamares-custom/* /etc/calamares/
+    if [ "$(uname -m)" = "aarch64" ]; then
+        sed -i 's|/x86_64/|/aarch64/|g' /etc/calamares/modules/unpackfs.conf 2>/dev/null || true
+    fi
 fi
 
 # Enable SDDM auto-login strictly for the live session (KDE Plasma 6)

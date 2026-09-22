@@ -118,5 +118,9 @@ noto-fonts-emoji
 ttf-font-awesome
 papirus-icon-theme
 
-# --- Installer ---
-archinstall
+# --- Installer & Dependencies (Calamares GUI Installer) ---
+calamares
+ckbcomp
+hwinfo
+kpmcore
+yaml-cpp
