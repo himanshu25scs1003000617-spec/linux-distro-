@@ -27,5 +27,4 @@ file_permissions=(
   ["/usr/local/bin/aether-firstrun.sh"]="0:0:755"
   ["/usr/local/bin/aether-autoresize"]="0:0:755"
   ["/usr/local/bin/aether-post-install-reboot"]="0:0:755"
-  ["/usr/lib/calamares/modules/initcpio/main.py"]="0:0:755"
 )
