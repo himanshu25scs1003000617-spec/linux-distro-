@@ -26,17 +26,19 @@ git clone --depth 1 https://aur.archlinux.org/calamares.git
 cd calamares
 sed -i "s/'x86_64'/'x86_64' 'aarch64'/" PKGBUILD
 makepkg -s --noconfirm --nocheck
-mkdir -p /workspace/custom-pkgs/aarch64
-PKG_FILE=$(find /tmp/calamares /home/builder / -name "calamares*.pkg.tar*" 2>/dev/null | head -n 1)
-echo "==> Found built package: $PKG_FILE"
-cp -f "$PKG_FILE" /workspace/custom-pkgs/aarch64/calamares.pkg.tar.zst
 BUILDER_SCRIPT
 
+echo "==> Finding and copying built Calamares package as root..."
+PKG_FILE=$(find /tmp/calamares /home/builder -name "calamares*.pkg.tar*" 2>/dev/null | head -n 1)
+echo "==> Found built package: $PKG_FILE"
+mkdir -p /workspace/custom-pkgs/aarch64
+rm -f /workspace/custom-pkgs/aarch64/calamares.pkg.tar*
+cp -f "$PKG_FILE" /workspace/custom-pkgs/aarch64/calamares.pkg.tar.xz
 ls -lh /workspace/custom-pkgs/aarch64/
 
 echo "==> Initializing custom repository for ARM64 Calamares GUI installer..."
 rm -f /workspace/custom-pkgs/aarch64/custom.db*
-repo-add /workspace/custom-pkgs/aarch64/custom.db.tar.gz /workspace/custom-pkgs/aarch64/*.pkg.tar.zst
+repo-add /workspace/custom-pkgs/aarch64/custom.db.tar.gz /workspace/custom-pkgs/aarch64/*.pkg.tar.*
 
 echo "==> Installing upstream archiso from git..."
 git clone --depth 1 https://gitlab.archlinux.org/archlinux/archiso.git /tmp/archiso
