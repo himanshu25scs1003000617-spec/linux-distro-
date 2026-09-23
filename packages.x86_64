@@ -137,6 +137,12 @@ ckbcomp
 hwinfo
 kpmcore
 yaml-cpp
+qt6-wayland
+qt6-declarative
+qt6-svg
+kcoreaddons
+libpwquality
+boost-libs
 
 
 # --- CachyOS-Grade Gaming & Runtime Performance ---

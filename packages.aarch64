@@ -125,3 +125,9 @@ hwinfo
 libx86emu
 kpmcore
 yaml-cpp
+qt6-wayland
+qt6-declarative
+qt6-svg
+kcoreaddons
+libpwquality
+boost-libs
