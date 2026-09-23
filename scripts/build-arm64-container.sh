@@ -27,8 +27,12 @@ cd calamares
 sed -i "s/'x86_64'/'x86_64' 'aarch64'/" PKGBUILD
 makepkg -s --noconfirm --nocheck
 mkdir -p /workspace/custom-pkgs/aarch64
-cp -f calamares-*.pkg.tar.zst /workspace/custom-pkgs/aarch64/calamares.pkg.tar.zst
+PKG_FILE=$(find /tmp/calamares /home/builder / -name "calamares*.pkg.tar*" 2>/dev/null | head -n 1)
+echo "==> Found built package: $PKG_FILE"
+cp -f "$PKG_FILE" /workspace/custom-pkgs/aarch64/calamares.pkg.tar.zst
 BUILDER_SCRIPT
+
+ls -lh /workspace/custom-pkgs/aarch64/
 
 echo "==> Initializing custom repository for ARM64 Calamares GUI installer..."
 rm -f /workspace/custom-pkgs/aarch64/custom.db*
