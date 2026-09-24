@@ -48,27 +48,23 @@ def main():
     print("        AetherOS ISO Recombination & Verification Tool        ")
     print("=" * 60)
 
-    # Search for .iso.part* files
-    part_files = sorted(glob.glob("*.iso.part*"))
-    if not part_files:
+    # Search for all .iso.part* files
+    all_parts = sorted(glob.glob("*.iso.part*"))
+    if not all_parts:
         print("\n[-] Error: No '*.iso.part*' files found in directory:")
         print(f"    {script_dir}")
         print("Please place the downloaded part files and sha256sum.txt in this folder.")
         sys.exit(1)
 
-    # Target ISO name is derived by trimming .part*
-    first_part = part_files[0]
-    target_iso = first_part.split(".part")[0]
+    # Group parts by target ISO
+    targets = {}
+    for p in all_parts:
+        target = p.split(".part")[0]
+        targets.setdefault(target, []).append(p)
 
-    print(f"\n[*] Target ISO Name : {target_iso}")
-    print(f"[*] Found Part Files: {len(part_files)}")
-
-    total_expected_size = 0
-    for p in part_files:
-        sz = os.path.getsize(p)
-        total_expected_size += sz
-        print(f"    -> {p} ({format_size(sz)})")
-    print(f"[*] Total Restored Size will be: {format_size(total_expected_size)}")
+    print(f"\n[*] Detected {len(targets)} distinct target ISO(s):")
+    for t, p_list in targets.items():
+        print(f"    • {t} ({len(p_list)} parts)")
 
     # Load checksums if sha256sum.txt exists
     checksums = {}
@@ -82,68 +78,85 @@ def main():
                     checksums[fn] = h
         print(f"[*] Loaded {len(checksums)} checksums from sha256sum.txt")
 
-    # Step 1: Verify each part before combining
-    if checksums:
-        print("\n[*] Step 1/3: Verifying integrity of individual parts...")
-        for p in part_files:
-            expected = checksums.get(p)
-            if expected:
-                sys.stdout.write(f"    Checking {p}...\n")
-                actual = compute_sha256(p, os.path.getsize(p))
-                if actual.lower() != expected.lower():
-                    print(f"\n[-] CRITICAL ERROR: Hash mismatch for '{p}'!")
-                    print(f"    Expected: {expected}")
-                    print(f"    Actual:   {actual}")
-                    print("Aborting. Please re-download this corrupted part.")
-                    sys.exit(1)
-                print(f"    [OK] {p} verified.")
-            else:
-                print(f"    [?] No checksum entry for {p}, continuing...")
+    for target_iso, part_files in targets.items():
+        print("\n" + "-" * 60)
+        print(f"Processing Target: {target_iso}")
+        print("-" * 60)
 
-    # Step 2: Combine the parts
-    print(f"\n[*] Step 2/3: Merging parts into '{target_iso}'...")
-    written_bytes = 0
-    start_time = time.time()
-    sha_out = hashlib.sha256()
-
-    with open(target_iso, "wb") as out_f:
+        total_expected_size = 0
         for p in part_files:
-            with open(p, "rb") as in_f:
-                while True:
-                    buf = in_f.read(BUFFER_SIZE)
-                    if not buf:
+            sz = os.path.getsize(p)
+            total_expected_size += sz
+            print(f"    -> {p} ({format_size(sz)})")
+        print(f"[*] Expected Restored Size: {format_size(total_expected_size)}")
+
+        # Step 1: Verify each part before combining
+        if checksums:
+            print("\n[*] Step 1/3: Verifying integrity of individual parts...")
+            all_parts_ok = True
+            for p in part_files:
+                expected = checksums.get(p)
+                if expected:
+                    sys.stdout.write(f"    Checking {p}...\n")
+                    actual = compute_sha256(p, os.path.getsize(p))
+                    if actual.lower() != expected.lower():
+                        print(f"\n[-] CRITICAL ERROR: Hash mismatch for '{p}'!")
+                        print(f"    Expected: {expected}")
+                        print(f"    Actual:   {actual}")
+                        print("Aborting this target. Please re-download this corrupted part.")
+                        all_parts_ok = False
                         break
-                    out_f.write(buf)
-                    sha_out.update(buf)
-                    written_bytes += len(buf)
-                    pct = (written_bytes / total_expected_size) * 100
-                    elapsed = time.time() - start_time
-                    speed = (written_bytes / (1024 * 1024)) / max(elapsed, 0.001)
-                    sys.stdout.write(f"\r    Merging: {pct:5.1f}% ({format_size(written_bytes)}/{format_size(total_expected_size)}) [{speed:.1f} MB/s]")
-                    sys.stdout.flush()
+                    print(f"    [OK] {p} verified.")
+                else:
+                    print(f"    [?] No checksum entry for {p}, continuing...")
 
-    sys.stdout.write("\n")
-    final_hash = sha_out.hexdigest()
-    print(f"[+] Reassembly complete! Final size: {format_size(written_bytes)}")
+            if not all_parts_ok:
+                continue
 
-    # Step 3: Final verification
-    print("\n[*] Step 3/3: Verifying final reassembled ISO...")
-    expected_iso_hash = checksums.get(target_iso)
-    if expected_iso_hash:
-        print(f"    Calculated SHA256: {final_hash}")
-        print(f"    Expected SHA256  : {expected_iso_hash}")
-        if final_hash.lower() == expected_iso_hash.lower():
-            print("\n" + "=" * 60)
-            print(" [SUCCESS] Reassembled ISO matches expected SHA256 checksum!")
-            print(f" File: {os.path.abspath(target_iso)}")
-            print(" Ready to flash to USB or boot in VMware / VirtualBox / QEMU!")
-            print("=" * 60)
+        # Step 2: Combine the parts
+        print(f"\n[*] Step 2/3: Merging {len(part_files)} parts into '{target_iso}'...")
+        written_bytes = 0
+        start_time = time.time()
+        sha_out = hashlib.sha256()
+
+        with open(target_iso, "wb") as out_f:
+            for p in part_files:
+                with open(p, "rb") as in_f:
+                    while True:
+                        buf = in_f.read(BUFFER_SIZE)
+                        if not buf:
+                            break
+                        out_f.write(buf)
+                        sha_out.update(buf)
+                        written_bytes += len(buf)
+                        pct = (written_bytes / total_expected_size) * 100
+                        elapsed = time.time() - start_time
+                        speed = (written_bytes / (1024 * 1024)) / max(elapsed, 0.001)
+                        sys.stdout.write(f"\r    Merging: {pct:5.1f}% ({format_size(written_bytes)}/{format_size(total_expected_size)}) [{speed:.1f} MB/s]")
+                        sys.stdout.flush()
+
+        sys.stdout.write("\n")
+        final_hash = sha_out.hexdigest()
+        print(f"[+] Reassembly complete! Final size: {format_size(written_bytes)}")
+
+        # Step 3: Final verification
+        print("\n[*] Step 3/3: Verifying final reassembled ISO...")
+        expected_iso_hash = checksums.get(target_iso)
+        if expected_iso_hash:
+            print(f"    Calculated SHA256: {final_hash}")
+            print(f"    Expected SHA256  : {expected_iso_hash}")
+            if final_hash.lower() == expected_iso_hash.lower():
+                print("\n" + "=" * 60)
+                print(" [SUCCESS] Reassembled ISO matches expected SHA256 checksum!")
+                print(f" File: {os.path.abspath(target_iso)}")
+                print(" Ready to flash to USB or boot in VMware / VirtualBox / QEMU!")
+                print("=" * 60)
+            else:
+                print("\n[-] ERROR: Final ISO hash does not match sha256sum.txt!")
+                sys.exit(1)
         else:
-            print("\n[-] ERROR: Final ISO hash does not match sha256sum.txt!")
-            sys.exit(1)
-    else:
-        print(f"    Generated SHA256: {final_hash}")
-        print(f"\n[+] Created: {os.path.abspath(target_iso)}")
+            print(f"    Generated SHA256: {final_hash}")
+            print(f"\n[+] Created: {os.path.abspath(target_iso)}")
 
 if __name__ == "__main__":
     main()

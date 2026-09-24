@@ -133,6 +133,8 @@ firefox
 
 # --- Installer & Dependencies (Calamares) ---
 calamares
+archinstall
+kdialog
 ckbcomp
 hwinfo
 kpmcore
@@ -143,6 +145,7 @@ qt6-svg
 kcoreaddons
 libpwquality
 boost-libs
+
 
 
 # --- CachyOS-Grade Gaming & Runtime Performance ---

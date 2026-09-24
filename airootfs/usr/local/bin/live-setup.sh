@@ -30,6 +30,13 @@ if [ -d /etc/calamares-custom ]; then
     fi
 fi
 
+# Ensure installer icon is present in standard icon search paths
+mkdir -p /usr/share/pixmaps
+if [ -f /etc/calamares-custom/branding/aether/aether-logo.png ]; then
+    cp -f /etc/calamares-custom/branding/aether/aether-logo.png /usr/share/pixmaps/calamares.png 2>/dev/null || true
+fi
+
+
 # Enable SDDM auto-login strictly for the live session (KDE Plasma 6)
 if [ -d /etc/sddm.conf.d-live ]; then
     mkdir -p /etc/sddm.conf.d
